@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HaAssistant - 管理面板</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
+    }
+
+    .header {
+      background: #000000;
+      color: #ffffff;
+      height: 44px;
+      padding: 0 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+    }
+    .header h1 {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: -0.12px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header-right span {
+      font-size: 12px;
+      color: #cccccc;
+    }
+    .btn-link {
+      background: none;
+      border: none;
+      color: #2997ff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: -0.12px;
+    }
+    .btn-link:hover { text-decoration: underline; }
+
+    .layout {
+      display: flex;
+      margin-top: 44px;
+      min-height: calc(100vh - 44px);
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #ffffff;
+      border-right: 1px solid #e0e0e0;
+      padding: 24px 0;
+      position: fixed;
+      top: 44px;
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+    }
+    .sidebar-title {
+      padding: 0 24px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #7a7a7a;
+      letter-spacing: -0.12px;
+      text-transform: uppercase;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #1d1d1f;
+      cursor: pointer;
+      letter-spacing: -0.224px;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+    .nav-item.active {
+      color: #0066cc;
+      background: rgba(0, 102, 204, 0.04);
+      border-left-color: #0066cc;
+      font-weight: 600;
+    }
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      padding: 32px 48px;
+      max-width: 1200px;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+    .page-header h2 {
+      font-size: 34px;
+      font-weight: 600;
+      letter-spacing: -0.374px;
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: 17px;
+      color: #7a7a7a;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 24px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-header h3 {
+      font-size: 21px;
+      font-weight: 600;
+      letter-spacing: 0.231px;
+    }
+    .card-body { padding: 24px; }
+
+    .form-group { margin-bottom: 24px; }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+      letter-spacing: -0.224px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="password"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 20px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 9999px;
+      font-size: 17px;
+      font-family: inherit;
+      color: #1d1d1f;
+      background: #ffffff;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #0066cc;
+    }
+    .form-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231d1d1f' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+    .form-group textarea {
+      border-radius: 11px;
+      font-family: monospace;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    .btn {
+      padding: 11px 22px;
+      border: none;
+      border-radius: 9999px;
+      font-size: 17px;
+      font-weight: 400;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary {
+      background: #0066cc;
+      color: #ffffff;
+    }
+    .btn-primary:hover { background: #0071e3; }
+    .btn-secondary {
+      background: transparent;
+      color: #0066cc;
+      border: 1px solid #0066cc;
+    }
+    .btn-secondary:hover { background: rgba(0, 102, 204, 0.04); }
+    .btn-danger {
+      background: #dc3545;
+      color: #ffffff;
+    }
+    .btn-danger:hover { background: #c82333; }
+    .btn-sm {
+      padding: 8px 15px;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.224px;
+    }
+    .btn-group { display: flex; gap: 8px; align-items: center; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 16px 0;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      letter-spacing: -0.224px;
+    }
+    th {
+      font-weight: 600;
+      color: #7a7a7a;
+      font-size: 12px;
+      letter-spacing: -0.12px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(0, 0, 0, 0.02); }
+
+    .preview-link {
+      color: #0066cc;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .preview-link:hover { text-decoration: underline; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .stat-card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 18px;
+      border: 1px solid #e0e0e0;
+    }
+    .stat-card .ip {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.374px;
+    }
+    .stat-card .time {
+      font-size: 14px;
+      color: #7a7a7a;
+      margin-top: 8px;
+      letter-spacing: -0.224px;
+    }
+
+    .audit-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      letter-spacing: -0.224px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .audit-item:last-child { border-bottom: none; }
+    .audit-time {
+      color: #7a7a7a;
+      font-size: 12px;
+      letter-spacing: -0.12px;
+      min-width: 140px;
+    }
+    .audit-action {
+      font-weight: 600;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #ffffff;
+      border-radius: 18px;
+      width: 480px;
+      max-width: 90%;
+      padding: 32px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .modal-header h2 {
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: 0.196px;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #7a7a7a;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .modal-close:hover { background: rgba(0, 0, 0, 0.04); }
+
+    .format-hint {
+      font-size: 12px;
+      color: #7a7a7a;
+      margin-top: 8px;
+      letter-spacing: -0.12px;
+    }
+
+    .login-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f5f5f7;
+    }
+    .login-card {
+      width: 400px;
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 48px;
+      border: 1px solid #e0e0e0;
+    }
+    .login-card h2 {
+      text-align: center;
+      margin-bottom: 32px;
+      font-size: 34px;
+      font-weight: 600;
+      letter-spacing: -0.374px;
+    }
+    .login-error {
+      color: #dc3545;
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: none;
+      text-align: center;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 11px;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.224px;
+    }
+    .status-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .status-error {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 0;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #0066cc;
+    }
+    .checkbox-group label {
+      font-size: 17px;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .restart-hint {
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: #fff3e0;
+      border-radius: 11px;
+      color: #f57c00;
+      font-size: 14px;
+      letter-spacing: -0.224px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #7a7a7a;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 24px 16px; }
+      .page-header h2 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="login-page" style="display:none">
+    <div class="login-wrapper">
+      <div class="login-card">
+        <h2>HaAssistant</h2>
+        <div id="login-error" class="login-error"></div>
+        <div class="form-group">
+          <label>用户名</label>
+          <input type="text" id="login-username" placeholder="admin" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="login-password" placeholder="请输入密码" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="doLogin()">登录</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="main-page" style="display:none">
+    <div class="header">
+      <h1>HaAssistant</h1>
+      <div class="header-right">
+        <span id="current-user"></span>
+        <button class="btn-link" onclick="showPasswordModal()">修改密码</button>
+        <button class="btn-link" onclick="doLogout()">退出</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <nav class="sidebar">
+        <div class="sidebar-title">管理</div>
+        <div class="nav-item active" data-nav="devices" onclick="switchNav('devices')">
+          <span class="nav-icon">&#128225;</span>
+          <span>设备管理</span>
+        </div>
+        <div class="nav-item" data-nav="config" onclick="switchNav('config')">
+          <span class="nav-icon">&#9881;</span>
+          <span>全局配置</span>
+        </div>
+        <div class="nav-item" data-nav="system" onclick="switchNav('system')">
+          <span class="nav-icon">&#128190;</span>
+          <span>系统设置</span>
+        </div>
+        <div class="sidebar-title" style="margin-top:16px">数据</div>
+        <div class="nav-item" data-nav="audit" onclick="switchNav('audit')">
+          <span class="nav-icon">&#128220;</span>
+          <span>操作审计</span>
+        </div>
+        <div class="nav-item" data-nav="stats" onclick="switchNav('stats')">
+          <span class="nav-icon">&#128200;</span>
+          <span>连接统计</span>
+        </div>
+      </nav>
+
+      <div class="main-content">
+        <div id="page-devices" class="tab-content active">
+          <div class="page-header">
+            <h2>设备管理</h2>
+            <p>管理允许访问 HA 仪表板的终端设备</p>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>设备列表</h3>
+              <div class="btn-group">
+                <button class="btn btn-primary btn-sm" onclick="showAddModal()">添加设备</button>
+                <button class="btn btn-secondary btn-sm" onclick="showImportModal()">批量导入</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <table>
+                <thead>
+                  <tr>
+                    <th>IP地址</th>
+                    <th>HA视图路径</th>
+                    <th>窗口尺寸</th>
+                    <th>最近连接</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="whitelist-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="page-config" class="tab-content">
+          <div class="page-header">
+            <h2>全局配置</h2>
+            <p>配置 Home Assistant 连接和认证信息</p>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="form-group">
+                <label>HA 基础 URL</label>
+                <input type="text" id="ha-base-url" placeholder="http://192.168.1.100:8123">
+              </div>
+              <div class="form-group">
+                <label>HA 用户名</label>
+                <input type="text" id="ha-username" placeholder="admin">
+              </div>
+              <div class="form-group">
+                <label>HA 密码</label>
+                <input type="password" id="ha-password" placeholder="HA 登录密码">
+              </div>
+              <div class="checkbox-group">
+                <input type="checkbox" id="token-auto-refresh">
+                <label for="token-auto-refresh">定时刷新 Token</label>
+              </div>
+              <div class="format-hint" style="margin-top:-16px;margin-bottom:24px">启用后每日自动刷新 access_token，避免过期</div>
+              <div id="refresh-hour-group" class="form-group" style="display:none">
+                <label>刷新时间</label>
+                <select id="token-refresh-hour">
+                  <option value="0">00:00</option>
+                  <option value="1">01:00</option>
+                  <option value="2">02:00</option>
+                  <option value="3" selected>03:00</option>
+                  <option value="4">04:00</option>
+                  <option value="5">05:00</option>
+                  <option value="6">06:00</option>
+                  <option value="7">07:00</option>
+                  <option value="8">08:00</option>
+                  <option value="9">09:00</option>
+                  <option value="10">10:00</option>
+                  <option value="11">11:00</option>
+                  <option value="12">12:00</option>
+                  <option value="13">13:00</option>
+                  <option value="14">14:00</option>
+                  <option value="15">15:00</option>
+                  <option value="16">16:00</option>
+                  <option value="17">17:00</option>
+                  <option value="18">18:00</option>
+                  <option value="19">19:00</option>
+                  <option value="20">20:00</option>
+                  <option value="21">21:00</option>
+                  <option value="22">22:00</option>
+                  <option value="23">23:00</option>
+                </select>
+                <div class="format-hint">建议选择凌晨时段（如 03:00），避免影响使用</div>
+              </div>
+              <div id="token-status" class="status-badge" style="display:none;margin-bottom:24px"></div>
+              <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="page-system" class="tab-content">
+          <div class="page-header">
+            <h2>系统设置</h2>
+            <p>服务端运行参数配置</p>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="form-group">
+                <label>服务端口</label>
+                <input type="number" id="system-port" placeholder="8080" min="1" max="65535">
+                <div class="format-hint">修改后需重启服务端生效，范围 1-65535</div>
+              </div>
+              <button class="btn btn-primary" onclick="saveSystemConfig()">保存并重启提示</button>
+              <div id="restart-hint" class="restart-hint" style="display:none">
+                端口已修改为 <b id="new-port"></b>，请手动重启服务端使配置生效。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="page-audit" class="tab-content">
+          <div class="page-header">
+            <h2>操作审计</h2>
+            <p>系统操作记录追踪</p>
+          </div>
+          <div class="card">
+            <div class="card-body" id="audit-log"></div>
+          </div>
+        </div>
+
+        <div id="page-stats" class="tab-content">
+          <div class="page-header">
+            <h2>连接统计</h2>
+            <p>终端设备连接状态概览</p>
+          </div>
+          <div class="stats-grid" id="stats-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="add-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">添加设备</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>IP地址</label>
+        <input type="text" id="edit-ip" placeholder="192.168.1.100">
+      </div>
+      <div class="form-group">
+        <label>HA视图路径</label>
+        <input type="text" id="edit-view-path" placeholder="/lovelace/tablet">
+      </div>
+      <div class="form-group">
+        <label>窗口宽度 (px)</label>
+        <input type="number" id="edit-width" placeholder="0 = 全屏" min="0">
+      </div>
+      <div class="form-group">
+        <label>窗口高度 (px)</label>
+        <input type="number" id="edit-height" placeholder="0 = 全屏" min="0">
+      </div>
+      <div class="btn-group" style="justify-content:flex-end;margin-top:32px">
+        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveWhitelistItem()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="import-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>批量导入</h2>
+        <button class="modal-close" onclick="closeImportModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>数据格式 (JSON)</label>
+        <textarea id="import-data" rows="8" placeholder='[
+  {"ip":"192.168.1.100","view_path":"/lovelace/tablet","width":1920,"height":1080}
+]'></textarea>
+        <div class="format-hint">支持 JSON 数组，每条记录包含 ip、view_path、width、height</div>
+      </div>
+      <div class="btn-group" style="justify-content:flex-end;margin-top:32px">
+        <button class="btn btn-secondary" onclick="closeImportModal()">取消</button>
+        <button class="btn btn-primary" onclick="doImport()">导入</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="password-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>修改密码</h2>
+        <button class="modal-close" onclick="closePasswordModal()">&times;</button>
+      </div>
+      <div id="password-error" class="login-error"></div>
+      <div class="form-group">
+        <label>旧密码</label>
+        <input type="password" id="old-password">
+      </div>
+      <div class="form-group">
+        <label>新密码</label>
+        <input type="password" id="new-password" placeholder="至少6位">
+      </div>
+      <div class="form-group">
+        <label>确认新密码</label>
+        <input type="password" id="confirm-password">
+      </div>
+      <div class="btn-group" style="justify-content:flex-end;margin-top:32px">
+        <button class="btn btn-secondary" onclick="closePasswordModal()">取消</button>
+        <button class="btn btn-primary" onclick="doChangePassword()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let whitelist = [];
+    let currentEdit = null;
+
+    function switchNav(name) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector(`.nav-item[data-nav="${name}"]`).classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      if (name === 'audit') loadAudit();
+      if (name === 'stats') loadStats();
+    }
+
+    document.getElementById('login-password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    async function checkAuth() {
+      const res = await fetch('/admin/me');
+      const data = await res.json();
+      if (data.logged_in) {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('main-page').style.display = 'block';
+        document.getElementById('current-user').textContent = data.username;
+        loadConfig();
+        loadWhitelist();
+      } else {
+        document.getElementById('login-page').style.display = 'block';
+        document.getElementById('main-page').style.display = 'none';
+      }
+    }
+
+    async function doLogin() {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+      errEl.style.display = 'none';
+      if (!username || !password) {
+        errEl.textContent = '请输入用户名和密码';
+        errEl.style.display = 'block';
+        return;
+      }
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        checkAuth();
+      } else {
+        const data = await res.json();
+        errEl.textContent = data.error || '登录失败';
+        errEl.style.display = 'block';
+      }
+    }
+
+    async function doLogout() {
+      await fetch('/admin/logout', { method: 'POST' });
+      checkAuth();
+    }
+
+    function showPasswordModal() {
+      document.getElementById('old-password').value = '';
+      document.getElementById('new-password').value = '';
+      document.getElementById('confirm-password').value = '';
+      document.getElementById('password-error').style.display = 'none';
+      document.getElementById('password-modal').classList.add('active');
+    }
+
+    function closePasswordModal() {
+      document.getElementById('password-modal').classList.remove('active');
+    }
+
+    async function doChangePassword() {
+      const old_password = document.getElementById('old-password').value;
+      const new_password = document.getElementById('new-password').value;
+      const confirm = document.getElementById('confirm-password').value;
+      const errEl = document.getElementById('password-error');
+      errEl.style.display = 'none';
+      if (new_password !== confirm) {
+        errEl.textContent = '两次输入的新密码不一致';
+        errEl.style.display = 'block';
+        return;
+      }
+      const res = await fetch('/admin/password', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ old_password, new_password })
+      });
+      if (res.ok) {
+        alert('密码已修改');
+        closePasswordModal();
+      } else {
+        const data = await res.json();
+        errEl.textContent = data.error || '修改失败';
+        errEl.style.display = 'block';
+      }
+    }
+
+    async function loadWhitelist() {
+      const res = await fetch('/admin/whitelist');
+      if (res.status === 401) { checkAuth(); return; }
+      whitelist = await res.json();
+      renderWhitelist();
+    }
+
+    function renderWhitelist() {
+      const tbody = document.getElementById('whitelist-body');
+      tbody.innerHTML = whitelist.map(item => {
+        const sizeDisplay = (item.width && item.height) ? `${item.width}x${item.height}` : '全屏';
+        const lastPull = item.lastPull ? new Date(item.lastPull).toLocaleString('zh-CN') : '从未连接';
+        const previewURL = buildPreviewURL(item);
+        return `<tr>
+          <td><strong>${item.ip}</strong></td>
+          <td>${item.view_path || '-'}</td>
+          <td>${sizeDisplay}</td>
+          <td style="color:#7a7a7a">${lastPull}</td>
+          <td>
+            <div class="btn-group">
+              <a href="${previewURL}" target="_blank" class="preview-link">预览</a>
+              <button class="btn btn-secondary btn-sm" onclick="editItem('${item.ip}')">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteItem('${item.ip}')">删除</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="5" class="empty-state">暂无设备，点击「添加设备」开始</td></tr>';
+    }
+
+    function buildPreviewURL(item) {
+      const baseURL = document.getElementById('ha-base-url')?.value || '';
+      const viewPath = item.view_path || '';
+      return `${baseURL}${viewPath}?kiosk=true`;
+    }
+
+    function showAddModal() {
+      currentEdit = null;
+      document.getElementById('modal-title').textContent = '添加设备';
+      document.getElementById('edit-ip').value = '';
+      document.getElementById('edit-ip').disabled = false;
+      document.getElementById('edit-view-path').value = '';
+      document.getElementById('edit-width').value = '';
+      document.getElementById('edit-height').value = '';
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function editItem(ip) {
+      const item = whitelist.find(i => i.ip === ip);
+      if (!item) return;
+      currentEdit = ip;
+      document.getElementById('modal-title').textContent = '编辑设备';
+      document.getElementById('edit-ip').value = item.ip;
+      document.getElementById('edit-ip').disabled = true;
+      document.getElementById('edit-view-path').value = item.view_path || '';
+      document.getElementById('edit-width').value = item.width || '';
+      document.getElementById('edit-height').value = item.height || '';
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('add-modal').classList.remove('active');
+    }
+
+    document.getElementById('token-auto-refresh').addEventListener('change', function() {
+      document.getElementById('refresh-hour-group').style.display = this.checked ? 'block' : 'none';
+    });
+
+    async function saveWhitelistItem() {
+      const data = {
+        ip: document.getElementById('edit-ip').value.trim(),
+        view_path: document.getElementById('edit-view-path').value.trim(),
+        width: parseInt(document.getElementById('edit-width').value) || 0,
+        height: parseInt(document.getElementById('edit-height').value) || 0
+      };
+      if (!data.ip) { alert('IP地址必填'); return; }
+
+      if (currentEdit) {
+        await fetch('/admin/whitelist/' + encodeURIComponent(currentEdit), {
+          method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
+        });
+      } else {
+        await fetch('/admin/whitelist', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
+        });
+      }
+      closeModal();
+      loadWhitelist();
+    }
+
+    async function deleteItem(ip) {
+      if (!confirm('确定删除 ' + ip + '？')) return;
+      await fetch('/admin/whitelist/' + encodeURIComponent(ip), { method: 'DELETE' });
+      loadWhitelist();
+    }
+
+    async function loadConfig() {
+      const res = await fetch('/admin/config');
+      if (res.status === 401) { checkAuth(); return; }
+      const config = await res.json();
+      document.getElementById('ha-base-url').value = config.ha_base_url || '';
+      document.getElementById('ha-username').value = config.ha_username || '';
+      document.getElementById('ha-password').value = config.ha_password || '';
+      document.getElementById('token-auto-refresh').checked = !!config.token_auto_refresh;
+      document.getElementById('token-refresh-hour').value = config.token_refresh_hour || 3;
+      document.getElementById('refresh-hour-group').style.display = config.token_auto_refresh ? 'block' : 'none';
+      document.getElementById('system-port').value = config.port || 8080;
+    }
+
+    async function saveConfig() {
+      const ha_base_url = document.getElementById('ha-base-url').value.trim();
+      const ha_username = document.getElementById('ha-username').value.trim();
+      const ha_password = document.getElementById('ha-password').value;
+      const token_auto_refresh = document.getElementById('token-auto-refresh').checked;
+      const token_refresh_hour = parseInt(document.getElementById('token-refresh-hour').value);
+      if (!ha_base_url) { alert('HA基础URL必填'); return; }
+
+      const statusEl = document.getElementById('token-status');
+      statusEl.style.display = 'none';
+
+      const res = await fetch('/admin/config', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ ha_base_url, ha_username, ha_password, token_auto_refresh, token_refresh_hour })
+      });
+      const data = await res.json();
+
+      if (data.tokenStatus === 'success') {
+        statusEl.textContent = 'Token 获取成功，终端设备可自动登录';
+        statusEl.className = 'status-badge status-success';
+        statusEl.style.display = 'inline-flex';
+      } else if (data.tokenStatus === 'failed') {
+        statusEl.textContent = 'Token 获取失败，请检查用户名和密码';
+        statusEl.className = 'status-badge status-error';
+        statusEl.style.display = 'inline-flex';
+      } else {
+        alert('配置已保存');
+      }
+      loadWhitelist();
+    }
+
+    async function saveSystemConfig() {
+      const port = parseInt(document.getElementById('system-port').value);
+      if (!port || port < 1 || port > 65535) { alert('端口范围 1-65535'); return; }
+      const res = await fetch('/admin/config', {
+        method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ port })
+      });
+      const data = await res.json();
+      if (data.needRestart) {
+        document.getElementById('new-port').textContent = port;
+        document.getElementById('restart-hint').style.display = 'block';
+      } else {
+        alert('配置已保存');
+      }
+    }
+
+    function showImportModal() {
+      document.getElementById('import-data').value = '';
+      document.getElementById('import-modal').classList.add('active');
+    }
+
+    function closeImportModal() {
+      document.getElementById('import-modal').classList.remove('active');
+    }
+
+    async function doImport() {
+      const raw = document.getElementById('import-data').value.trim();
+      let items;
+      try {
+        items = JSON.parse(raw);
+        if (!Array.isArray(items)) throw new Error('需要数组格式');
+      } catch (e) {
+        alert('JSON格式错误: ' + e.message);
+        return;
+      }
+      const res = await fetch('/admin/whitelist/batch', {
+        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ items })
+      });
+      const result = await res.json();
+      alert(`导入完成: 新增 ${result.imported} 条, 更新 ${result.updated} 条`);
+      closeImportModal();
+      loadWhitelist();
+    }
+
+    async function loadAudit() {
+      const res = await fetch('/admin/audit');
+      if (res.status === 401) { checkAuth(); return; }
+      const log = await res.json();
+      const container = document.getElementById('audit-log');
+      const actionMap = { add_whitelist: '添加设备', update_whitelist: '更新设备', delete_whitelist: '删除设备', batch_import: '批量导入', update_config: '更新配置', login: '登录', change_password: '修改密码' };
+      container.innerHTML = log.slice().reverse().map(entry => {
+        const time = new Date(entry.timestamp).toLocaleString('zh-CN');
+        const action = actionMap[entry.action] || entry.action;
+        return `<div class="audit-item">
+          <span class="audit-time">${time}</span>
+          <span>${entry.user || 'admin'}</span>
+          <span class="audit-action">${action}</span>
+          <span style="color:#7a7a7a">${entry.detail?.ip || entry.detail?.ha_base_url || ''}</span>
+        </div>`;
+      }).join('') || '<div class="empty-state">暂无审计记录</div>';
+    }
+
+    async function loadStats() {
+      const res = await fetch('/admin/stats');
+      if (res.status === 401) { checkAuth(); return; }
+      const stats = await res.json();
+      const grid = document.getElementById('stats-grid');
+      const entries = Object.entries(stats);
+      grid.innerHTML = entries.map(([ip, data]) => {
+        const lastPull = data.lastPull ? new Date(data.lastPull).toLocaleString('zh-CN') : '从未连接';
+        return `<div class="stat-card">
+          <div class="ip">${ip}</div>
+          <div class="time">最近连接: ${lastPull}</div>
+          <div class="time">连接次数: ${data.pullCount}</div>
+        </div>`;
+      }).join('') || '<div class="empty-state">暂无连接记录</div>';
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>

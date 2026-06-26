@@ -1,0 +1,21 @@
+configuration:
+  ha_base_url:
+    name: HA Base URL
+    description: >-
+      Home Assistant base URL (e.g., http://homeassistant.local:8123)
+  ha_username:
+    name: HA Username
+    description: >-
+      Home Assistant username for authentication
+  ha_password:
+    name: HA Password
+    description: >-
+      Home Assistant password for authentication
+  token_auto_refresh:
+    name: Auto Refresh Token
+    description: >-
+      Enable automatic token refresh at specified hour
+  token_refresh_hour:
+    name: Refresh Hour
+    description: >-
+      Hour of day (0-23) to refresh tokens when auto-refresh is enabled

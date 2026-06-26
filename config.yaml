@@ -1,0 +1,32 @@
+name: "HaAssistant"
+version: "1.0.0"
+slug: ha-assistant
+description: >-
+  局域网终端与 Home Assistant 安全对接系统。服务端集中管控，客户端零信任。
+arch:
+  - amd64
+  - aarch64
+url: "https://github.com/your-repo/ha-assistant"
+ingress: true
+ingress_port: 8080
+ingress_entry: "/admin/"
+panel_icon: "mdi:monitor-dashboard"
+panel_title: "HaAssistant"
+panel_admin: true
+boot: auto
+host_network: false
+map:
+  - type: data
+    read_only: false
+options:
+  ha_base_url: "http://homeassistant.local:8123"
+  ha_username: ""
+  ha_password: ""
+  token_auto_refresh: false
+  token_refresh_hour: 3
+schema:
+  ha_base_url: str
+  ha_username: str
+  ha_password: password
+  token_auto_refresh: bool
+  token_refresh_hour: int(0,23)
