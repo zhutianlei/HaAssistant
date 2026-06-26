@@ -18,7 +18,7 @@ Home Assistant Add-on：局域网终端与 HA 安全对接系统。
 
 1. 在 HA 中添加自定义 Add-on 仓库：
    ```
-   https://github.com/zhutianlei/HaAssistant
+   https://github.com/zhutianlei/haassistant
    ```
 2. 安装「HaAssistant」
 3. 在配置中填写 HA 地址和凭据
